@@ -41,18 +41,161 @@ public class View {
 		Goddess goddess = new Goddess();
 		GoddessAction action = new GoddessAction();
 		String previous = null;
-		int step = 1;
+		int add_step = 1;
 		int get_step = 1;
+		int delete_step = 1;
+		int update_step = 1;
 		while (scan.hasNext()) {
 			String in = scan.next().toString();
+//			System.out.println(in);
 			if (OPERATION_EXIT.equals(in.toUpperCase())
 					|| OPERATION_EXIT.substring(0, 1).equals(in.toUpperCase())) {
 				System.out.println("您已成功推出女神禁区。");
 				break;
 			}
+			else if (OPERATION_BREAK.equals(in.toUpperCase())
+					|| OPERATION_BREAK.substring(0, 1).equals(in.toUpperCase())) {
+				System.out.println("退出功能");
+				previous = null;
+				add_step = 1;
+				get_step = 1;
+				delete_step = 1;
+				update_step = 1;
+			}
 			else if (OPERATION_UPDATE.equals(in.toUpperCase())
-					|| OPERATION_UPDATE.substring(0, 1).equals(in.toUpperCase())) {
-				
+					|| OPERATION_UPDATE.substring(0, 1).equals(in.toUpperCase())
+					|| OPERATION_UPDATE.equals(previous)) {
+				previous = OPERATION_UPDATE;
+				if (1 == update_step) {
+					System.out.println("请输入要更新的女神编号");
+					System.out.println("编号:");
+				} else if (2 == update_step) {
+					try {
+						goddess = action.get(Integer.valueOf(in));
+						System.out.println("不需要更新的字段，请输入null");
+						System.out.println("姓名:");
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				} else if (3 == update_step) {
+					if (!in.equals("null")) {
+						goddess.setUser_name(in);
+					}
+					System.out.println("年龄:");
+				} else if (4 == update_step) {
+					if (!in.equals("null")) {
+						goddess.setAge(Integer.valueOf(in));
+					}
+					System.out.println("性别(0:女; 1:男):");
+				} else if (5 == update_step) {
+					if (!in.equals("null")) {
+						goddess.setSex(Integer.valueOf(in));
+					}
+					System.out.println("生日(如1990-01-01):");
+				} else if (6 == update_step) {
+					if (!in.equals("null")) {
+						SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+						Date date;
+						try {
+							date = sdf.parse(in);
+							goddess.setBirthday(date);
+						} catch (ParseException e) {
+							e.printStackTrace();
+						}
+					}
+					System.out.println("邮箱:");
+				} else if (7 == update_step) {
+					if (!in.equals("null")) {
+						goddess.setEmail(in);
+					}
+					System.out.println("手机号:");
+				} else if (8 == update_step) {
+					if (!in.equals("null")) {
+						goddess.setMobile(in);
+					}
+					previous = null;
+					update_step = 1;
+					try {
+						action.edit(goddess);
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+					System.out.println("女神更新成功");
+					continue;
+				}
+				if (OPERATION_UPDATE.equals(previous)) {
+					update_step++;
+				}
+			}
+			else if (OPERATION_ADD.equals(in.toUpperCase())
+					|| OPERATION_ADD.substring(0, 1).equals(in.toUpperCase())
+					|| OPERATION_ADD.equals(previous)) {
+				previous = OPERATION_ADD;
+				//新增女神
+				if (1 == add_step) {
+					System.out.println("请输入女神的[姓名]");
+				} else if (2 == add_step) {
+					goddess.setUser_name(in);
+					System.out.println("请输入女神的[年龄]");
+				} else if (3 == add_step) {
+					goddess.setAge(Integer.valueOf(in));
+					System.out.println("请输入女神的[生日]，格式如：yyyy-MM-dd");
+				} else if (4 == add_step) {
+					SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
+					Date birthday = null;
+					try {
+						birthday = sf.parse(in);
+						goddess.setBirthday(birthday);
+						System.out.println("请输入女神的[邮箱]");
+					} catch (ParseException e) {
+						e.printStackTrace();
+						System.out.println("您输入的格式有误，请重新输入");
+						add_step = 3;
+					}
+				} else if (5 == add_step) {
+					goddess.setEmail(in);
+					System.out.println("请输入女神的[手机号]");
+				} else if (6 == add_step) {
+					goddess.setMobile(in);
+					try {
+						action.add(goddess);
+						previous = null;
+						add_step = 1;
+						System.out.println("新增女神成功");
+						continue;
+					} catch (Exception e) {
+						e.printStackTrace();
+						System.out.println("新增女神失败");
+					}
+				}
+				if (OPERATION_ADD.equals(previous)) {
+					add_step++;
+				}
+			}
+			else if (OPERATION_DELETE.equals(in.toUpperCase())
+					|| OPERATION_DELETE.substring(0, 1).equals(in.toUpperCase())
+					|| OPERATION_DELETE.equals(previous)) {
+				previous = OPERATION_DELETE;
+				if (1 == delete_step) {
+					System.out.println("请输入要删除的女神的编号");
+				} else if (2 == delete_step) {
+					try {
+						action.del(Integer.valueOf(in));
+						previous = null;
+						delete_step = 1;
+						System.out.println("删除女神成功");
+						continue;
+					} catch (NumberFormatException e) {
+						e.printStackTrace();
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				if (OPERATION_DELETE.equals(previous)) {
+					delete_step++;
+				}
 			}
 			else if (OPERATION_QUERY.equals(in.toUpperCase())
 					|| OPERATION_QUERY.substring(0, 1).equals(in.toUpperCase())) {
@@ -83,56 +226,18 @@ public class View {
 						System.out.println("生日：" + g.getBirthday());
 						System.out.println("邮箱：" + g.getEmail());
 						System.out.println("手机号：" + g.getMobile());
+						previous = null;
+						get_step = 1;
+						continue;
 					} catch (Exception e) {
-						e.printStackTrace();
+//						e.printStackTrace();
+						System.out.println("sorry,没有找到对应编号的女神。请输入正确的女神编号");
+						continue;
 					}
 				}
 				if (OPERATION_GET.equals(previous)) {
 					get_step++;
 				}
-			}
-			else if (OPERATION_ADD.equals(in.toUpperCase())
-					|| OPERATION_ADD.substring(0, 1).equals(in.toUpperCase())
-					|| OPERATION_ADD.equals(previous)) {
-				previous = OPERATION_ADD;
-				//新增女神
-				if (1 == step) {
-					System.out.println("请输入女神的[姓名]");
-				} else if (2 == step) {
-					goddess.setUser_name(in);
-					System.out.println("请输入女神的[年龄]");
-				} else if (3 == step) {
-					goddess.setAge(Integer.valueOf(in));
-					System.out.println("请输入女神的[生日]，格式如：yyyy-MM-dd");
-				} else if (4 == step) {
-					SimpleDateFormat sf = new SimpleDateFormat("yyyy-MM-dd");
-					Date birthday = null;
-					try {
-						birthday = sf.parse(in);
-						goddess.setBirthday(birthday);
-						System.out.println("请输入女神的[邮箱]");
-					} catch (ParseException e) {
-						e.printStackTrace();
-						System.out.println("您输入的格式有误，请重新输入");
-						step = 3;
-					}
-				} else if (5 == step) {
-					goddess.setEmail(in);
-					System.out.println("请输入女神的[手机号]");
-				} else if (6 == step) {
-					goddess.setMobile(in);
-					try {
-						action.add(goddess);
-						System.out.println("新增女神成功");
-					} catch (Exception e) {
-						e.printStackTrace();
-						System.out.println("新增女神失败");
-					}
-				}
-				if (OPERATION_ADD.equals(previous)) {
-					step++;
-				}
-				
 			}
 			else {
 				System.out.println("请输入操作:");

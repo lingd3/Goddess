@@ -28,7 +28,6 @@ public class GoddessAction {
 	
 	public void edit(Goddess goddess) throws Exception {
 		GoddessDao dao = new GoddessDao();
-		goddess.setSex(1);
 		goddess.setCreate_user("ADMIN");
 		dao.updateGoddess(goddess);
 	}

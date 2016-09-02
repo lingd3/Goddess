@@ -2,8 +2,11 @@ package com.imooc.view;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import com.imooc.action.GoddessAction;
@@ -40,19 +43,25 @@ public class View {
 		Scanner scan = new Scanner(System.in);
 		Goddess goddess = new Goddess();
 		GoddessAction action = new GoddessAction();
+		List<Map<String, Object>> params = new ArrayList<Map<String, Object>>();
+		Map<String, Object> param = new HashMap<String, Object>();
 		String previous = null;
 		int add_step = 1;
 		int get_step = 1;
 		int delete_step = 1;
 		int update_step = 1;
+		int search_step = 1;
 		while (scan.hasNext()) {
 			String in = scan.next().toString();
-//			System.out.println(in);
+
+			//exit退出女神禁区
 			if (OPERATION_EXIT.equals(in.toUpperCase())
 					|| OPERATION_EXIT.substring(0, 1).equals(in.toUpperCase())) {
 				System.out.println("您已成功推出女神禁区。");
 				break;
 			}
+			
+			//break退出当前功能，返回主菜单
 			else if (OPERATION_BREAK.equals(in.toUpperCase())
 					|| OPERATION_BREAK.substring(0, 1).equals(in.toUpperCase())) {
 				System.out.println("退出功能");
@@ -61,7 +70,10 @@ public class View {
 				get_step = 1;
 				delete_step = 1;
 				update_step = 1;
+				search_step = 1;
 			}
+			
+			//update更新女神信息
 			else if (OPERATION_UPDATE.equals(in.toUpperCase())
 					|| OPERATION_UPDATE.substring(0, 1).equals(in.toUpperCase())
 					|| OPERATION_UPDATE.equals(previous)) {
@@ -129,6 +141,8 @@ public class View {
 					update_step++;
 				}
 			}
+			
+			//add添加女神信息
 			else if (OPERATION_ADD.equals(in.toUpperCase())
 					|| OPERATION_ADD.substring(0, 1).equals(in.toUpperCase())
 					|| OPERATION_ADD.equals(previous)) {
@@ -174,6 +188,8 @@ public class View {
 					add_step++;
 				}
 			}
+			
+			//delete删除女神信息
 			else if (OPERATION_DELETE.equals(in.toUpperCase())
 					|| OPERATION_DELETE.substring(0, 1).equals(in.toUpperCase())
 					|| OPERATION_DELETE.equals(previous)) {
@@ -197,6 +213,8 @@ public class View {
 					delete_step++;
 				}
 			}
+			
+			//query查看全部女神的信息
 			else if (OPERATION_QUERY.equals(in.toUpperCase())
 					|| OPERATION_QUERY.substring(0, 1).equals(in.toUpperCase())) {
 				List<Goddess> list;
@@ -210,6 +228,8 @@ public class View {
 					e.printStackTrace();
 				}
 			}
+			
+			//get查看某位女神的详细信息
 			else if (OPERATION_GET.equals(in.toUpperCase())
 					|| OPERATION_GET.substring(0, 1).equals(in.toUpperCase())
 					|| OPERATION_GET.equals(previous)) {
@@ -237,6 +257,52 @@ public class View {
 				}
 				if (OPERATION_GET.equals(previous)) {
 					get_step++;
+				}
+			}
+			
+			//search查询女神信息(根据姓名、手机号来查询)
+			else if (OPERATION_SEARCH.equals(in.toUpperCase())
+					|| OPERATION_SEARCH.substring(0, 1).equals(in.toUpperCase())
+					|| OPERATION_SEARCH.equals(previous)) {
+				previous = OPERATION_SEARCH;
+				if (1 == search_step) {
+					System.out.println("请输入女神的姓名");
+				} else if (2 == search_step) {
+					param.put("name", "user_name");
+					param.put("rela", "=");
+					param.put("value", "'" + in + "'"); //注意值要加引号
+					System.out.println("输入为：" + in);
+					params.add(param);
+					System.out.println("请输入女神的手机号");
+				} else if (3 == search_step) {
+					try {
+						param = new HashMap<String, Object>();
+						param.put("name", "mobile");
+						param.put("rela", "=");
+						param.put("value", "'" + in + "'");
+						System.out.println("输入为：" + in);
+						params.add(param);
+						System.out.println("下面是查询到的女神的信息：");
+						List<Goddess> result = action.query(params);
+						for (int i = 0; i < result.size(); i++) {
+							Goddess g  = action.get(result.get(i).getId());
+							System.out.println("编号：" + g.getId());
+							System.out.println("姓名：" + g.getUser_name());
+							System.out.println("年龄：" + g.getAge());
+							System.out.println("性别：女");
+							System.out.println("生日：" + g.getBirthday());
+							System.out.println("邮箱：" + g.getEmail());
+							System.out.println("手机号：" + g.getMobile());
+						}
+						previous = null;
+						search_step = 1;
+						continue;
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				if (OPERATION_SEARCH.equals(previous)) {
+					search_step++;
 				}
 			}
 			else {

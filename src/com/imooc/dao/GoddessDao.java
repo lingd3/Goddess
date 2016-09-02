@@ -136,6 +136,7 @@ public class GoddessDao {
 				sb.append(" and " + map.get("name") + " " + map.get("rela") + map.get("value") + " ");
 			}
 		}
+//		System.out.println(sb);
 		
 		PreparedStatement ptmt = conn.prepareStatement(sb.toString());
 		
